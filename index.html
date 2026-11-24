@@ -3,7 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#0b1120" id="themeColorMeta">
+<!-- Цвета системных панелей -->
+<meta name="theme-color" content="#f1f5f9" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0b1120" media="(prefers-color-scheme: dark)">
 <meta name="description" content="Расписание пар колледжа КГСТ">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -31,36 +33,11 @@
 <div class="bg-layer" id="bgLayer"></div>
 
 <div class="app" id="app">
-  <!-- ФИКСИРОВАННАЯ ШАПКА -->
-  <div class="sticky-header">
-    <div class="top-row">
-      <select id="groupSelect" aria-label="Выбор группы"></select>
-      <div class="header-time" id="headerTime">--:--</div>
-      <div class="header-actions">
-        <button id="openDashboardBtn" class="icon-btn" title="Дашборд" aria-label="Дашборд">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect>
-          </svg>
-        </button>
-        <button id="openSettingsBtn" class="icon-btn" title="Настройки" aria-label="Настройки">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-          </svg>
-        </button>
-      </div>
-    </div>
-    
-    <!-- Статус-бар (что сейчас) -->
-    <div class="header-status">
-      <div class="status-info">
-        <span class="status-badge" id="statusBadge">Статус</span>
-        <span class="status-title" id="liveStatus">Загрузка...</span>
-      </div>
-      <div class="status-timer" id="liveTimer">--:--</div>
-    </div>
-  </div>
+  <!-- Верхняя часть: Только заголовок и неделя -->
+  <header class="main-header">
+    <div class="brand">КГСТ • Пары</div>
+  </header>
 
-  <!-- Основной контент -->
   <div class="week-banner" id="weekBanner">
     <div class="week-info">
       <div class="week-icon" id="weekIcon">🔼</div>
@@ -73,18 +50,37 @@
   </div>
 
   <div class="days" id="daysBar"></div>
-  <div id="scheduleList"></div>
+  <div id="scheduleList" style="padding-bottom: 80px;"></div>
 </div>
 
-<!-- Модалка заметок -->
+<!-- НИЖНЯЯ НАВИГАЦИОННАЯ ПАНЕЛЬ -->
+<div class="bottom-nav">
+  <div class="nav-left">
+    <select id="groupSelect" aria-label="Выбор группы"></select>
+  </div>
+  <div class="nav-center" id="openDashboardBtn">
+    <div class="nav-time" id="headerTime">--:--</div>
+    <div class="nav-status" id="liveStatus">Загрузка...</div>
+  </div>
+  <div class="nav-right">
+    <button id="openDashboardBtn2" class="icon-btn" title="Дашборд">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+    </button>
+    <button id="openEditorBtn" class="icon-btn" title="Редактор пар">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+    </button>
+    <button id="openSettingsBtn" class="icon-btn" title="Настройки">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+    </button>
+  </div>
+</div>
+
+<!-- Модалки -->
 <dialog id="noteModal">
   <div class="modal-header">
-    <div>
-      <div class="modal-title" id="modalTitle">Заметка к паре</div>
-      <div class="modal-sub" id="modalSub">Сохраняется в памяти устройства</div>
-    </div>
+    <div><div class="modal-title" id="modalTitle">Заметка</div><div class="modal-sub" id="modalSub"></div></div>
   </div>
-  <textarea id="noteInput" placeholder="Например: принести чертеж, выучить параграф 4..."></textarea>
+  <textarea id="noteInput" placeholder="Например: принести чертеж..."></textarea>
   <div class="modal-actions">
     <button id="deleteNote" class="btn btn-danger">Удалить</button>
     <div style="display:flex; gap:8px; margin-left:auto;">
@@ -94,31 +90,21 @@
   </div>
 </dialog>
 
-<!-- Дашборд (Записи + Оценки) -->
 <dialog id="dashboardModal">
   <div class="modal-header">
-    <div>
-      <div class="modal-title">📊 Мой Дашборд</div>
-      <div class="modal-sub">Записи и средний балл</div>
-    </div>
+    <div><div class="modal-title">📊 Дашборд</div><div class="modal-sub">Записи и оценки</div></div>
     <button id="closeDashboardBtn" class="btn" style="padding: 6px 10px;">✕</button>
   </div>
-
   <div class="dash-tabs">
-    <button class="dash-tab active" data-tab="tab-hw">Все записи (ДЗ)</button>
+    <button class="dash-tab active" data-tab="tab-hw">Записи (ДЗ)</button>
     <button class="dash-tab" data-tab="tab-grades">Оценки</button>
   </div>
-
-  <div id="tab-hw" class="dash-content active">
-    <div id="hwList" style="display:flex; flex-direction:column; gap:8px;"></div>
-  </div>
-
+  <div id="tab-hw" class="dash-content active"><div id="hwList" style="display:flex; flex-direction:column; gap:8px;"></div></div>
   <div id="tab-grades" class="dash-content">
     <div class="dash-card" style="text-align:center; margin-bottom:12px;">
       <div style="font-size:12px; color:var(--muted); text-transform:uppercase;">Средний балл</div>
       <div id="gpaValue" style="font-size:36px; font-weight:900; color:var(--accent);">0.00</div>
     </div>
-    
     <div class="add-grade-form">
       <input type="text" id="gradeSubject" class="text-input" placeholder="Предмет">
       <div style="display:flex; gap:6px;">
@@ -131,28 +117,21 @@
   </div>
 </dialog>
 
-<!-- Настройки -->
 <dialog id="settingsModal">
   <div class="modal-header">
-    <div>
-      <div class="modal-title">⚙️ Настройки</div>
-      <div class="modal-sub">Фон, вид, группы</div>
-    </div>
+    <div><div class="modal-title">⚙️ Настройки</div></div>
     <button id="closeSettingsBtn" class="btn" style="padding: 6px 10px;">✕</button>
   </div>
-
   <div class="setting-section">
     <span class="setting-label">Фон приложения</span>
     <div class="bg-grid" id="bgGrid"></div>
     <div class="add-group-row" style="margin-top: 6px;">
-      <input type="url" id="bgUrlInput" class="text-input" placeholder="Ссылка на картинку (https://...)">
-      <label class="btn btn-primary" style="display:inline-flex; align-items:center; cursor:pointer; white-space:nowrap;">
-        📁 Файл
+      <label class="btn btn-primary" style="display:inline-flex; align-items:center; cursor:pointer; width:100%; justify-content:center;">
+        📁 Загрузить своё фото
         <input type="file" id="bgFileInput" accept="image/*" style="display:none;">
       </label>
     </div>
   </div>
-
   <div class="setting-section">
     <span class="setting-label">Прозрачность карточек</span>
     <div class="segmented-control four" id="opacityControl">
@@ -162,7 +141,6 @@
       <button class="seg-btn" data-opacity="0.2">Стекло</button>
     </div>
   </div>
-
   <div class="setting-section">
     <span class="setting-label">Размер текста</span>
     <div class="segmented-control" id="fontSizeControl">
@@ -171,7 +149,6 @@
       <button class="seg-btn" data-scale="1.15">Крупный</button>
     </div>
   </div>
-
   <div class="setting-section">
     <span class="setting-label">Учебная неделя</span>
     <div class="segmented-control" id="weekModeControl">
@@ -180,31 +157,13 @@
       <button class="seg-btn" data-wmode="bot">🔽 Низ</button>
     </div>
   </div>
-
-  <div class="setting-section">
-    <span class="setting-label">Группы</span>
-    <div class="group-chips" id="groupChips"></div>
-    <div class="add-group-row">
-      <input type="text" id="newGroupInput" class="text-input" placeholder="Новая группа">
-      <button id="addGroupBtn" class="btn btn-primary">+</button>
-    </div>
-  </div>
-
-  <div class="setting-section" id="installSection" style="display:none;">
-    <span class="setting-label">Приложение</span>
-    <button id="installBtn" class="btn btn-primary" style="width:100%;">📲 Установить</button>
-  </div>
 </dialog>
 
-<!-- Редактор -->
 <dialog id="editorModal">
   <div class="modal-header">
-    <div>
-      <div class="modal-title">✏️ Редактор</div>
-    </div>
+    <div><div class="modal-title">✏️ Редактор</div></div>
     <button id="closeEditorBtn" class="btn" style="padding: 6px 10px;">✕</button>
   </div>
-
   <div class="setting-section" style="padding-top: 0;">
     <select id="editorGroupSelect" class="text-input" style="margin-bottom: 8px;"></select>
     <div class="days" id="editorDaysBar" style="margin-bottom: 4px;"></div>
@@ -229,4 +188,4 @@
 </script>
 <script src="app.js" defer></script>
 </body>
-  </html>
+</html>
