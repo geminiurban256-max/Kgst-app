@@ -3,17 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<!-- Цвета системных панелей -->
 <meta name="theme-color" content="#f1f5f9" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0b1120" media="(prefers-color-scheme: dark)">
-<meta name="description" content="Расписание пар колледжа КГСТ">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="КГСТ">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="css/style.css">
 <title>Расписание КГСТ</title>
 </head>
 <body>
@@ -33,7 +29,6 @@
 <div class="bg-layer" id="bgLayer"></div>
 
 <div class="app" id="app">
-  <!-- Верхняя часть: Только заголовок и неделя -->
   <header class="main-header">
     <div class="brand">КГСТ • Пары</div>
   </header>
@@ -53,7 +48,7 @@
   <div id="scheduleList" style="padding-bottom: 80px;"></div>
 </div>
 
-<!-- НИЖНЯЯ НАВИГАЦИОННАЯ ПАНЕЛЬ -->
+<!-- НИЖНЯЯ НАВИГАЦИЯ -->
 <div class="bottom-nav">
   <div class="nav-left">
     <select id="groupSelect" aria-label="Выбор группы"></select>
@@ -64,23 +59,21 @@
   </div>
   <div class="nav-right">
     <button id="openDashboardBtn2" class="icon-btn" title="Дашборд">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
     </button>
-    <button id="openEditorBtn" class="icon-btn" title="Редактор пар">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+    <button id="openEditorBtn" class="icon-btn" title="Редактор">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
     </button>
     <button id="openSettingsBtn" class="icon-btn" title="Настройки">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
     </button>
   </div>
 </div>
 
-<!-- Модалки -->
+<!-- Модалки (скрыты по умолчанию) -->
 <dialog id="noteModal">
-  <div class="modal-header">
-    <div><div class="modal-title" id="modalTitle">Заметка</div><div class="modal-sub" id="modalSub"></div></div>
-  </div>
-  <textarea id="noteInput" placeholder="Например: принести чертеж..."></textarea>
+  <div class="modal-header"><div><div class="modal-title" id="modalTitle">Заметка</div><div class="modal-sub" id="modalSub"></div></div></div>
+  <textarea id="noteInput" placeholder="Текст заметки..."></textarea>
   <div class="modal-actions">
     <button id="deleteNote" class="btn btn-danger">Удалить</button>
     <div style="display:flex; gap:8px; margin-left:auto;">
@@ -91,101 +84,35 @@
 </dialog>
 
 <dialog id="dashboardModal">
-  <div class="modal-header">
-    <div><div class="modal-title">📊 Дашборд</div><div class="modal-sub">Записи и оценки</div></div>
-    <button id="closeDashboardBtn" class="btn" style="padding: 6px 10px;">✕</button>
-  </div>
+  <div class="modal-header"><div><div class="modal-title">📊 Дашборд</div></div><button id="closeDashboardBtn" class="btn" style="padding: 6px 10px;">✕</button></div>
   <div class="dash-tabs">
-    <button class="dash-tab active" data-tab="tab-hw">Записи (ДЗ)</button>
+    <button class="dash-tab active" data-tab="tab-hw">Записи</button>
     <button class="dash-tab" data-tab="tab-grades">Оценки</button>
   </div>
-  <div id="tab-hw" class="dash-content active"><div id="hwList" style="display:flex; flex-direction:column; gap:8px;"></div></div>
+  <div id="tab-hw" class="dash-content active"><div id="hwList"></div></div>
   <div id="tab-grades" class="dash-content">
-    <div class="dash-card" style="text-align:center; margin-bottom:12px;">
-      <div style="font-size:12px; color:var(--muted); text-transform:uppercase;">Средний балл</div>
-      <div id="gpaValue" style="font-size:36px; font-weight:900; color:var(--accent);">0.00</div>
-    </div>
+    <div class="dash-card" style="text-align:center;"><div style="font-size:12px;color:var(--muted);">Средний балл</div><div id="gpaValue" style="font-size:32px;font-weight:900;color:var(--accent);">0.00</div></div>
     <div class="add-grade-form">
       <input type="text" id="gradeSubject" class="text-input" placeholder="Предмет">
       <div style="display:flex; gap:6px;">
-        <input type="number" id="gradeValue" class="text-input" placeholder="Оценка" min="2" max="5" style="width:80px; text-align:center;">
-        <input type="text" id="gradeNote" class="text-input" placeholder="За что? (Контрольная)">
-        <button id="addGradeBtn" class="btn btn-primary" style="padding:10px 14px;">+</button>
+        <input type="number" id="gradeValue" class="text-input" placeholder="Оценка" min="2" max="5" style="width:80px;">
+        <input type="text" id="gradeNote" class="text-input" placeholder="За что?">
+        <button id="addGradeBtn" class="btn btn-primary">+</button>
       </div>
     </div>
-    <div id="gradesList" style="margin-top:12px; display:flex; flex-direction:column; gap:6px;"></div>
+    <div id="gradesList"></div>
   </div>
 </dialog>
 
 <dialog id="settingsModal">
-  <div class="modal-header">
-    <div><div class="modal-title">⚙️ Настройки</div></div>
-    <button id="closeSettingsBtn" class="btn" style="padding: 6px 10px;">✕</button>
-  </div>
-  <div class="setting-section">
-    <span class="setting-label">Фон приложения</span>
-    <div class="bg-grid" id="bgGrid"></div>
-    <div class="add-group-row" style="margin-top: 6px;">
-      <label class="btn btn-primary" style="display:inline-flex; align-items:center; cursor:pointer; width:100%; justify-content:center;">
-        📁 Загрузить своё фото
-        <input type="file" id="bgFileInput" accept="image/*" style="display:none;">
-      </label>
-    </div>
-  </div>
-  <div class="setting-section">
-    <span class="setting-label">Прозрачность карточек</span>
-    <div class="segmented-control four" id="opacityControl">
-      <button class="seg-btn" data-opacity="1">Плотные</button>
-      <button class="seg-btn" data-opacity="0.7">Средние</button>
-      <button class="seg-btn" data-opacity="0.4">Прозрачные</button>
-      <button class="seg-btn" data-opacity="0.2">Стекло</button>
-    </div>
-  </div>
-  <div class="setting-section">
-    <span class="setting-label">Размер текста</span>
-    <div class="segmented-control" id="fontSizeControl">
-      <button class="seg-btn" data-scale="0.9">Мелкий</button>
-      <button class="seg-btn" data-scale="1">Обычный</button>
-      <button class="seg-btn" data-scale="1.15">Крупный</button>
-    </div>
-  </div>
-  <div class="setting-section">
-    <span class="setting-label">Учебная неделя</span>
-    <div class="segmented-control" id="weekModeControl">
-      <button class="seg-btn" data-wmode="auto">Авто</button>
-      <button class="seg-btn" data-wmode="top">🔼 Верх</button>
-      <button class="seg-btn" data-wmode="bot">🔽 Низ</button>
-    </div>
-  </div>
+  <div class="modal-header"><div><div class="modal-title">⚙️ Настройки</div></div><button id="closeSettingsBtn" class="btn">✕</button></div>
+  <div class="setting-section"><span class="setting-label">Фон</span><div class="bg-grid" id="bgGrid"></div></div>
+  <div class="setting-section"><span class="setting-label">Прозрачность</span><div class="segmented-control four" id="opacityControl"><button class="seg-btn" data-opacity="1">Плотные</button><button class="seg-btn" data-opacity="0.7">Средние</button><button class="seg-btn" data-opacity="0.4">Прозрачные</button><button class="seg-btn" data-opacity="0.2">Стекло</button></div></div>
+  <div class="setting-section"><span class="setting-label">Размер текста</span><div class="segmented-control" id="fontSizeControl"><button class="seg-btn" data-scale="0.9">Мелкий</button><button class="seg-btn" data-scale="1">Обычный</button><button class="seg-btn" data-scale="1.15">Крупный</button></div></div>
 </dialog>
 
-<dialog id="editorModal">
-  <div class="modal-header">
-    <div><div class="modal-title">✏️ Редактор</div></div>
-    <button id="closeEditorBtn" class="btn" style="padding: 6px 10px;">✕</button>
-  </div>
-  <div class="setting-section" style="padding-top: 0;">
-    <select id="editorGroupSelect" class="text-input" style="margin-bottom: 8px;"></select>
-    <div class="days" id="editorDaysBar" style="margin-bottom: 4px;"></div>
-  </div>
-  <div id="editorPairsList"></div>
-  <div class="modal-actions" style="margin-top: 12px;">
-    <button id="editorAddPairBtn" class="btn">+ Пара</button>
-    <div style="display:flex; gap:6px; margin-left:auto;">
-      <button id="editorResetBtn" class="btn">Сброс</button>
-      <button id="editorSaveBtn" class="btn btn-primary">💾 Сохранить</button>
-    </div>
-  </div>
-</dialog>
-
-<script>
-  setTimeout(function() {
-    var splash = document.getElementById('splash');
-    var app = document.getElementById('app');
-    if (splash) splash.style.display = 'none';
-    if (app) app.classList.add('loaded');
-  }, 1500);
-</script>
-<script src="app.js" defer></script>
+<!-- ПОДКЛЮЧАЕМ СКРИПТЫ СТРОГО В ЭТОМ ПОРЯДКЕ -->
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>
