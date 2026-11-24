@@ -112,6 +112,15 @@
 </dialog>
 
 <!-- ПОДКЛЮЧАЕМ СКРИПТЫ СТРОГО В ЭТОМ ПОРЯДКЕ -->
+<script>
+  // Страховка: если скрипт упадет, заставка исчезнет через 1.5 сек
+  setTimeout(function() {
+    var splash = document.getElementById('splash');
+    var app = document.getElementById('app');
+    if (splash) splash.style.display = 'none';
+    if (app) app.classList.add('loaded');
+  }, 1500);
+</script>
 <script src="js/data.js"></script>
 <script src="js/app.js"></script>
 </body>
