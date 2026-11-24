@@ -3,17 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#f1f5f9" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0b1120" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#0f172a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
-<link rel="stylesheet" href="css/style.css">
+<!-- ДОБАВЛЕНО ?v=3 ДЛЯ СБРОСА КЭША -->
+<link rel="stylesheet" href="css/style.css?v=3">
 <title>Расписание КГСТ</title>
 </head>
 <body>
 
+<!-- Экран загрузки -->
 <div class="splash" id="splash">
   <div class="splash-inner">
     <div class="splash-logo-wrap">
@@ -21,7 +22,6 @@
       <div class="splash-logo">К</div>
     </div>
     <div class="splash-title">КГСТ</div>
-    <div class="splash-sub">Расписание пар</div>
     <div class="splash-loader"><span></span><span></span><span></span></div>
   </div>
 </div>
@@ -29,23 +29,35 @@
 <div class="bg-layer" id="bgLayer"></div>
 
 <div class="app" id="app">
-  <header class="main-header">
-    <div class="brand">КГСТ • Пары</div>
+  
+  <!-- Блок с приветствием и часами -->
+  <header class="hero-section">
+    <div class="greeting" id="greetingText">Добрый день!</div>
+    <div class="sub-greeting">Расписание на сегодня</div>
+    
+    <!-- Шестиугольник с часами -->
+    <div class="hex-container" id="hexTimerContainer">
+      <div class="hex-bg" id="hexBg"></div>
+      <div class="hex-content">
+        <div class="hex-time" id="headerTime">--:--</div>
+        <div class="hex-status" id="liveStatus">Загрузка...</div>
+      </div>
+    </div>
   </header>
 
   <div class="week-banner" id="weekBanner">
     <div class="week-info">
       <div class="week-icon" id="weekIcon">🔼</div>
       <div class="week-text-wrap">
-        <span class="week-sub">Учебная неделя</span>
-        <span class="week-main" id="weekLabel">Верхняя неделя</span>
+        <span class="week-sub">Неделя</span>
+        <span class="week-main" id="weekLabel">Верхняя</span>
       </div>
     </div>
     <span class="week-badge-pill" id="weekModePill">Авто</span>
   </div>
 
   <div class="days" id="daysBar"></div>
-  <div id="scheduleList" style="padding-bottom: 80px;"></div>
+  <div id="scheduleList" style="padding-bottom: 100px;"></div>
 </div>
 
 <!-- НИЖНЯЯ НАВИГАЦИЯ -->
@@ -54,23 +66,20 @@
     <select id="groupSelect" aria-label="Выбор группы"></select>
   </div>
   <div class="nav-center" id="openDashboardBtn">
-    <div class="nav-time" id="headerTime">--:--</div>
-    <div class="nav-status" id="liveStatus">Загрузка...</div>
+    <div class="nav-time" id="dashTimeBtn">---</div>
+    <div class="nav-status">Дашборд</div>
   </div>
   <div class="nav-right">
     <button id="openDashboardBtn2" class="icon-btn" title="Дашборд">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-    </button>
-    <button id="openEditorBtn" class="icon-btn" title="Редактор">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
     </button>
     <button id="openSettingsBtn" class="icon-btn" title="Настройки">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
     </button>
   </div>
 </div>
 
-<!-- Модалки (скрыты по умолчанию) -->
+<!-- Модалки (оставляем без изменений) -->
 <dialog id="noteModal">
   <div class="modal-header"><div><div class="modal-title" id="modalTitle">Заметка</div><div class="modal-sub" id="modalSub"></div></div></div>
   <textarea id="noteInput" placeholder="Текст заметки..."></textarea>
@@ -111,9 +120,8 @@
   <div class="setting-section"><span class="setting-label">Размер текста</span><div class="segmented-control" id="fontSizeControl"><button class="seg-btn" data-scale="0.9">Мелкий</button><button class="seg-btn" data-scale="1">Обычный</button><button class="seg-btn" data-scale="1.15">Крупный</button></div></div>
 </dialog>
 
-<!-- ПОДКЛЮЧАЕМ СКРИПТЫ СТРОГО В ЭТОМ ПОРЯДКЕ -->
+<!-- Страховка от зависания заставки -->
 <script>
-  // Страховка: если скрипт упадет, заставка исчезнет через 1.5 сек
   setTimeout(function() {
     var splash = document.getElementById('splash');
     var app = document.getElementById('app');
@@ -121,7 +129,8 @@
     if (app) app.classList.add('loaded');
   }, 1500);
 </script>
-<script src="js/data.js"></script>
-<script src="js/app.js"></script>
+<!-- ДОБАВЛЕНО ?v=3 ДЛЯ СБРОСА КЭША -->
+<script src="js/data.js?v=3"></script>
+<script src="js/app.js?v=3"></script>
 </body>
 </html>
