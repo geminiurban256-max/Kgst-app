@@ -1,4 +1,4 @@
-const CACHE = 'kgst-v6';
+const CACHE = 'kgst-v7';
 const ASSETS = [
   './',
   './index.html',
