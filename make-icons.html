@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Генератор иконок КГСТ</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         max-width: 560px; margin: 40px auto; padding: 20px; color: #0f172a; background: #f1f5f9; }
+  h1 { margin-top: 0; }
+  .card { background: #fff; padding: 20px; border-radius: 14px; box-shadow: 0 4px 14px rgba(15,23,42,.06); }
+  button { padding: 12px 20px; font-size: 16px; font-weight: 700; border: none; border-radius: 10px;
+           background: linear-gradient(135deg, #2563eb, #4f46e5); color: #fff; cursor: pointer; }
+  button:hover { opacity: .92; }
+  code { background: #e2e8f0; padding: 2px 6px; border-radius: 4px; }
+  .step { margin: 12px 0; }
+  ol { padding-left: 20px; }
+  ol li { margin: 6px 0; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Иконки КГСТ PWA</h1>
+  <p>Эта страница сгенерирует три PNG-файла иконок через canvas. Откройте её в браузере на компьютере.</p>
+  <p><button onclick="generate()">⬇️ Скачать иконки</button></p>
+  <h3>Что делать дальше</h3>
+  <ol>
+    <li>Нажмите кнопку — в папке «Загрузки» появятся <code>icon-192.png</code>, <code>icon-512.png</code>, <code>apple-touch-icon.png</code>.</li>
+    <li>Переместите их в папку <code>icons/</code> рядом с <code>index.html</code>.</li>
+    <li>Готово — PWA теперь устанавливается.</li>
+  </ol>
+</div>
+<script>
+function drawIcon(size) {
+  const c = document.createElement('canvas');
+  c.width = c.height = size;
+  const ctx = c.getContext('2d');
+  const g = ctx.createLinearGradient(0, 0, size, size);
+  g.addColorStop(0, '#2563eb');
+  g.addColorStop(1, '#4f46e5');
+  const r = size * 0.19;
+  ctx.beginPath();
+  ctx.moveTo(r, 0);
+  ctx.lineTo(size - r, 0);
+  ctx.quadraticCurveTo(size, 0, size, r);
+  ctx.lineTo(size, size - r);
+  ctx.quadraticCurveTo(size, size, size - r, size);
+  ctx.lineTo(r, size);
+  ctx.quadraticCurveTo(0, size, 0, size - r);
+  ctx.lineTo(0, r);
+  ctx.quadraticCurveTo(0, 0, r, 0);
+  ctx.closePath();
+  ctx.fillStyle = g;
+  ctx.fill();
+  ctx.fillStyle = '#fff';
+  ctx.font = `900 ${Math.round(size * 0.55)}px -apple-system, Arial, sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('К', size / 2, size * 0.54);
+  return c;
+}
+function download(canvas, name) {
+  canvas.toBlob(blob => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1500);
+  }, 'image/png');
+}
+function generate() {
+  download(drawIcon(192), 'icon-192.png');
+  setTimeout(() => download(drawIcon(512), 'icon-512.png'), 400);
+  setTimeout(() => download(drawIcon(180), 'apple-touch-icon.png'), 800);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#2563eb">
+<meta name="description" content="Расписание пар колледжа КГСТ">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="КГСТ">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="stylesheet" href="app.css">
+<title>Расписание КГСТ</title>
+</head>
+<body>
+
+<div class="splash" id="splash">
+  <div class="splash-inner">
+    <div class="splash-logo-wrap">
+      <div class="splash-glow"></div>
+      <div class="splash-logo">К</div>
+    </div>
+    <div class="splash-title">КГСТ</div>
+    <div class="splash-sub">Расписание пар</div>
+    <div class="splash-loader"><span></span><span></span><span></span></div>
+  </div>
+</div>
+
+<div class="bg-layer" id="bgLayer"></div>
+
+<div class="app" id="app">
+  <header>
+    <div class="brand">КГСТ • Пары</div>
+    <div class="header-right">
+      <select id="groupSelect" aria-label="Выбор группы"></select>
+      <select id="themeSelect" aria-label="Выбор темы">
+        <option value="system">🌓</option>
+        <option value="light">☀️</option>
+        <option value="dark">🌙</option>
+      </select>
+      <button id="openEditorBtn" class="icon-btn" title="Редактор пар" aria-label="Редактор пар">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 20h9"></path>
+          <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+        </svg>
+      </button>
+      <button id="openSettingsBtn" class="icon-btn" title="Настройки" aria-label="Настройки">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="week-banner" id="weekBanner">
+    <div class="week-info">
+      <div class="week-icon" id="weekIcon">🔼</div>
+      <div class="week-text-wrap">
+        <span class="week-sub">Учебная неделя КГСТ</span>
+        <span class="week-main" id="weekLabel">Верхняя неделя</span>
+      </div>
+    </div>
+    <span class="week-badge-pill" id="weekModePill">Авто</span>
+  </div>
+
+  <div class="status-box">
+    <div class="status-header">
+      <span class="status-title" id="liveStatus">Загрузка...</span>
+      <span class="status-badge" id="statusBadge">Статус</span>
+    </div>
+    <div class="status-timer" id="liveTimer">--:--</div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+  </div>
+
+  <div class="days" id="daysBar"></div>
+  <div id="scheduleList"></div>
+</div>
+
+<dialog id="noteModal">
+  <div class="modal-header">
+    <div>
+      <div class="modal-title" id="modalTitle">Заметка к паре</div>
+      <div class="modal-sub" id="modalSub">Сохраняется в памяти устройства</div>
+    </div>
+  </div>
+  <textarea id="noteInput" placeholder="Например: принести чертеж, выучить параграф 4..."></textarea>
+  <div class="modal-actions">
+    <button id="deleteNote" class="btn btn-danger">Удалить</button>
+    <div style="display:flex; gap:8px; margin-left:auto;">
+      <button id="closeModal" class="btn">Отмена</button>
+      <button id="saveNote" class="btn btn-primary">Сохранить</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="settingsModal">
+  <div class="modal-header">
+    <div>
+      <div class="modal-title">⚙️ Настройки</div>
+      <div class="modal-sub">Фон, вид, неделя, группы</div>
+    </div>
+    <button id="closeSettingsBtn" class="btn" style="padding: 6px 10px;">✕</button>
+  </div>
+
+  <div class="setting-section">
+    <span class="setting-label">Фон приложения</span>
+    <div class="bg-grid" id="bgGrid"></div>
+    <div class="add-group-row" style="margin-top: 6px;">
+      <input type="url" id="bgUrlInput" class="text-input" placeholder="Ссылка на картинку (https://...)">
+      <label class="btn btn-primary" style="display:inline-flex; align-items:center; cursor:pointer; white-space:nowrap;">
+        📁 Файл
+        <input type="file" id="bgFileInput" accept="image/*" style="display:none;">
+      </label>
+    </div>
+    <div class="setting-hint">Пресеты меняются под тему автоматически.</div>
+  </div>
+
+  <div class="setting-section">
+    <span class="setting-label">Прозрачность карточек</span>
+    <div class="segmented-control four" id="opacityControl">
+      <button class="seg-btn" data-opacity="1">Плотные</button>
+      <button class="seg-btn" data-opacity="0.7">Средние</button>
+      <button class="seg-btn" data-opacity="0.4">Прозрачные</button>
+      <button class="seg-btn" data-opacity="0.2">Стекло</button>
+    </div>
+  </div>
+
+  <div class="setting-section">
+    <span class="setting-label">Размер текста</span>
+    <div class="segmented-control" id="fontSizeControl">
+      <button class="seg-btn" data-scale="0.9">Мелкий</button>
+      <button class="seg-btn" data-scale="1">Обычный</button>
+      <button class="seg-btn" data-scale="1.15">Крупный</button>
+    </div>
+  </div>
+
+  <div class="setting-section">
+    <span class="setting-label">Учебная неделя</span>
+    <div class="segmented-control" id="weekModeControl">
+      <button class="seg-btn" data-wmode="auto">Авто</button>
+      <button class="seg-btn" data-wmode="top">🔼 Верх</button>
+      <button class="seg-btn" data-wmode="bot">🔽 Низ</button>
+    </div>
+  </div>
+
+  <div class="setting-section">
+    <span class="setting-label">Группы (нажмите, чтобы скрыть/показать)</span>
+    <div class="group-chips" id="groupChips"></div>
+    <div class="add-group-row">
+      <input type="text" id="newGroupInput" class="text-input" placeholder="Новая группа">
+      <button id="addGroupBtn" class="btn btn-primary">+</button>
+    </div>
+  </div>
+
+  <div class="setting-section" id="installSection" style="display:none;">
+    <span class="setting-label">Приложение</span>
+    <button id="installBtn" class="btn btn-primary" style="width:100%;">📲 Установить на устройство</button>
+  </div>
+</dialog>
+
+<dialog id="editorModal">
+  <div class="modal-header">
+    <div>
+      <div class="modal-title">✏️ Редактор пар</div>
+      <div class="modal-sub">Изменения сохраняются на устройстве</div>
+    </div>
+    <button id="closeEditorBtn" class="btn" style="padding: 6px 10px;">✕</button>
+  </div>
+
+  <div class="setting-section" style="padding-top: 0;">
+    <select id="editorGroupSelect" class="text-input" style="margin-bottom: 8px;"></select>
+    <div class="days" id="editorDaysBar" style="margin-bottom: 4px;"></div>
+  </div>
+
+  <div id="editorPairsList"></div>
+
+  <div class="modal-actions" style="margin-top: 12px;">
+    <button id="editorAddPairBtn" class="btn">+ Пара</button>
+    <div style="display:flex; gap:6px; margin-left:auto;">
+      <button id="editorResetBtn" class="btn">Сброс дня</button>
+      <button id="editorSaveBtn" class="btn btn-primary">💾 Сохранить</button>
+    </div>
+  </div>
+</dialog>
+<script>
+  // Страховка: убираем заставку через 1.5 секунды в любом случае
+  setTimeout(function() {
+    var splash = document.getElementById('splash');
+    var app = document.getElementById('app');
+    if (splash) splash.style.display = 'none';
+    if (app) app.classList.add('loaded');
+  }, 1500);
+</script>
+<script src="app.js" defer></script>
+</body>
+</html>
