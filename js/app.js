@@ -1,6 +1,6 @@
-// ==== КОНСТАНТЫ И ПЕРЕМЕННЫЕ ====
+// ==== КОНСТАНТЫ ====
 const BG_PRESETS = {
-  default: { name: "Стандарт", light: "#f1f5f9", dark: "#0b1120" },
+  default: { name: "Тёмный", light: "#f8fafc", dark: "#0f172a" },
   aurora: { name: "Аврора", light: "linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)", dark: "linear-gradient(135deg, #1a2980 0%, #26d0ce 100%)" },
   ocean: { name: "Океан", light: "linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%)", dark: "linear-gradient(135deg, #0f2027 0%, #2c5364 100%)" },
   sunset: { name: "Закат", light: "linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)", dark: "linear-gradient(135deg, #3a1c71 0%, #d76d77 100%)" },
@@ -34,7 +34,6 @@ let bgPreset = LS.get("kgst_bg_preset", "default");
 let bgCustom = LS.get("kgst_bg_custom", "");
 let currentNoteKey = "";
 
-// ==== DOM ЭЛЕМЕНТЫ ====
 const dom = {
   weekBanner: document.getElementById("weekBanner"),
   weekIcon: document.getElementById("weekIcon"),
@@ -42,6 +41,7 @@ const dom = {
   weekModePill: document.getElementById("weekModePill"),
   liveStatus: document.getElementById("liveStatus"),
   headerTime: document.getElementById("headerTime"),
+  greetingText: document.getElementById("greetingText"),
   daysBar: document.getElementById("daysBar"),
   scheduleList: document.getElementById("scheduleList"),
   noteModal: document.getElementById("noteModal"),
@@ -85,11 +85,10 @@ function isDarkNow() {
 function applyTheme() { applyBackground(); }
 function applyBackground() {
   const dark = isDarkNow();
-  const baseColor = dark ? "#0b1120" : "#f1f5f9";
+  const baseColor = dark ? "#0f172a" : "#f8fafc";
   let bgImage = "none"; let overlay = "transparent";
   if (bgPreset === "custom" && bgCustom) {
     bgImage = `url("${bgCustom.replace(/"/g, '\\"')}")`;
-    overlay = dark ? "rgba(0,0,0,0.45)" : "rgba(255,255,255,0.25)";
   } else {
     const p = BG_PRESETS[bgPreset] || BG_PRESETS.default;
     const val = dark ? p.dark : p.light;
@@ -98,8 +97,6 @@ function applyBackground() {
   const root = document.documentElement.style;
   root.setProperty("--bg-layer-bg", baseColor);
   root.setProperty("--bg-layer-image", bgImage);
-  root.setProperty("--bg-overlay", overlay);
-  root.setProperty("--bg", baseColor);
 }
 function applyFontScale(scale) {
   fontScale = String(scale);
@@ -107,11 +104,16 @@ function applyFontScale(scale) {
   LS.set("kgst_font_scale", fontScale);
   document.querySelectorAll("#fontSizeControl .seg-btn").forEach(b => b.classList.toggle("active", b.dataset.scale === fontScale));
 }
-function applyCardOpacity(op) {
-  cardOpacity = String(op);
-  document.documentElement.style.setProperty("--card-opacity", cardOpacity);
-  LS.set("kgst_card_opacity", cardOpacity);
-  document.querySelectorAll("#opacityControl .seg-btn").forEach(b => b.classList.toggle("active", b.dataset.opacity === cardOpacity));
+
+// ==== ПРИВЕТСТВИЕ ====
+function updateGreeting() {
+  const hour = new Date().getHours();
+  let text = "Добрый день!";
+  if (hour >= 5 && hour < 12) text = "Доброе утро!";
+  else if (hour >= 12 && hour < 18) text = "Добрый день!";
+  else if (hour >= 18 && hour < 23) text = "Добрый вечер!";
+  else text = "Доброй ночи!";
+  if (dom.greetingText) dom.greetingText.textContent = text;
 }
 
 // ==== РЕНДЕР ====
@@ -137,7 +139,7 @@ function renderSchedule() {
   const top = isTopWeek();
   dom.weekBanner.classList.toggle("bottom-week", !top);
   dom.weekIcon.textContent = top ? "🔼" : "🔽";
-  dom.weekLabel.textContent = top ? "Верхняя неделя" : "Нижняя неделя";
+  dom.weekLabel.textContent = top ? "Верхняя" : "Нижняя";
   dom.weekModePill.textContent = weekMode === "auto" ? "Авто" : "Вручную";
 
   dom.scheduleList.innerHTML = "";
@@ -175,7 +177,7 @@ function renderSchedule() {
 
     card.querySelector(".subject").textContent = subjectName || "(без названия)";
     if (teacher) card.querySelector(".teacher").textContent = teacher;
-    card.querySelector(".note-text").textContent = savedNote || "Сделать заметку";
+    card.querySelector(".note-text").textContent = savedNote || "Добавить запись";
 
     card.onclick = () => openNoteModal(noteKey, subjectName, pairNum === 0 ? "Классный час" : `${pairNum} пара`, savedNote);
     dom.scheduleList.appendChild(card);
@@ -198,7 +200,7 @@ function renderSchedule() {
   });
 }
 
-// ==== ТАЙМЕР ====
+// ==== ТАЙМЕР И УМНЫЕ ЦВЕТА ====
 function getActiveBells(group, day) {
   const schedule = getSchedule(group);
   const dayData = (schedule && schedule[day]) || [];
@@ -215,39 +217,49 @@ function updateLive() {
   const today = now.getDay();
   const secNow = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
 
-  if (today === 0) { updateUI("Воскресенье", now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }), false); return; }
+  updateGreeting(); // Обновляем приветствие
+
+  if (today === 0) { 
+    updateUI("Воскресенье", now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }), 'rest'); 
+    return; 
+  }
 
   const bells = getActiveBells(selectedGroup, today);
-  if (bells.length === 0) { updateUI("Пар нет", now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }), false); return; }
+  if (bells.length === 0) { 
+    updateUI("Пар нет", now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }), 'rest'); 
+    return; 
+  }
 
   let activePairNum = null;
-  let stateText = "Занятия окончены";
-  let isBreak = false;
+  let stateText = "Отдых";
+  let statusType = 'rest'; // lecture, break, rest
   let diffSec = 0;
 
   for (let i = 0; i < bells.length; i++) {
     const start = toSec(bells[i].start);
     const end = toSec(bells[i].end);
     if (secNow < start) {
-      if (i === 0) { stateText = `Ожидание (${bells[i].name})`; diffSec = start - secNow; }
-      else { isBreak = true; stateText = `Перемена (до ${bells[i].name})`; diffSec = start - secNow; }
+      if (i === 0) { stateText = `Ждём ${bells[i].name}`; diffSec = start - secNow; }
+      else { stateText = `Перемена`; statusType = 'break'; diffSec = start - secNow; }
       break;
     } else if (secNow >= start && secNow <= end) {
       activePairNum = bells[i].num;
-      stateText = `Идёт ${bells[i].name}`;
+      stateText = `Идёт пара`;
+      statusType = 'lecture';
       diffSec = end - secNow;
       break;
     }
   }
 
-  let timerStr = "Отдых";
+  let timerStr = "00:00";
   if (diffSec > 0) {
     const h = Math.floor(diffSec / 3600);
     const m = Math.floor((diffSec % 3600) / 60);
     const s = diffSec % 60;
-    timerStr = (h > 0 ? `${h}ч ` : "") + `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+    timerStr = (h > 0 ? `${h}:` : "") + `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
   }
-  updateUI(stateText, timerStr, isBreak);
+  
+  updateUI(stateText, timerStr, statusType);
 
   const isToday = selectedDay === today;
   for (const c of cachedCards) {
@@ -260,12 +272,31 @@ function updateLive() {
   }
 }
 
-function updateUI(stateText, timerStr, isBreak) {
-  const newStateKey = stateText + timerStr;
+function updateUI(stateText, timerStr, statusType) {
+  const newStateKey = stateText + timerStr + statusType;
   if (lastState === newStateKey) return;
   lastState = newStateKey;
-  if (dom.liveStatus) { dom.liveStatus.textContent = stateText; dom.liveStatus.style.color = isBreak ? "var(--green)" : "var(--accent)"; }
-  if (dom.headerTime) { dom.headerTime.textContent = timerStr; }
+
+  // Меняем текст
+  if (dom.liveStatus) dom.liveStatus.textContent = stateText;
+  if (dom.headerTime) dom.headerTime.textContent = timerStr;
+  if (document.getElementById("dashTimeBtn")) document.getElementById("dashTimeBtn").textContent = timerStr;
+
+  // МЕНЯЕМ ЦВЕТА ШЕСТИУГОЛЬНИКА И АКЦЕНТОВ
+  const root = document.documentElement;
+  if (statusType === 'lecture') {
+    // Идёт пара - Фиолетовый/Розовый
+    root.style.setProperty("--status-color-1", "#8b5cf6");
+    root.style.setProperty("--status-color-2", "#ec4899");
+  } else if (statusType === 'break') {
+    // Перемена - Зеленый/Бирюзовый
+    root.style.setProperty("--status-color-1", "#10b981");
+    root.style.setProperty("--status-color-2", "#06b6d4");
+  } else {
+    // Отдых - Оранжевый/Красный
+    root.style.setProperty("--status-color-1", "#f59e0b");
+    root.style.setProperty("--status-color-2", "#ef4444");
+  }
 }
 
 // ==== МОДАЛКИ ====
@@ -303,7 +334,7 @@ function renderHomework() {
       container.appendChild(el);
     }
   }
-  if (!hasNotes) container.innerHTML = `<div style="text-align:center; color:var(--muted); font-size:13px; padding:20px;">Нет заметок. Нажмите на пару, чтобы добавить ДЗ.</div>`;
+  if (!hasNotes) container.innerHTML = `<div style="text-align:center; color:var(--muted); font-size:14px; padding:20px;">Нет заметок.</div>`;
 }
 
 document.getElementById("addGradeBtn").onclick = () => {
@@ -321,7 +352,7 @@ function renderGrades() {
   const list = document.getElementById("gradesList");
   list.innerHTML = "";
   if (gradesData.length === 0) {
-    list.innerHTML = `<div style="text-align:center; color:var(--muted); font-size:13px;">Оценок пока нет.</div>`;
+    list.innerHTML = `<div style="text-align:center; color:var(--muted); font-size:14px;">Оценок пока нет.</div>`;
     document.getElementById("gpaValue").textContent = "0.00";
     return;
   }
@@ -334,7 +365,7 @@ function renderGrades() {
     el.innerHTML = `
       <div class="grade-val g${g.value}">${g.value}</div>
       <div class="grade-info"><div class="grade-subj">${escapeHtml(g.subject)}</div>${g.note ? `<div class="grade-note">${escapeHtml(g.note)}</div>` : ""}</div>
-      <button class="btn btn-danger" style="padding:4px 8px; font-size:12px;" onclick="deleteGrade(${g.id})">✕</button>
+      <button class="btn btn-danger" style="padding:6px 10px; font-size:12px; border-radius:10px;" onclick="deleteGrade(${g.id})">✕</button>
     `;
     list.appendChild(el);
   });
@@ -361,13 +392,12 @@ document.getElementById("deleteNote").onclick = () => { LS.del(currentNoteKey); 
 
 // ==== НАСТРОЙКИ ====
 document.getElementById("openSettingsBtn").onclick = () => {
-  renderBackgroundGrid(); applyFontScale(fontScale); applyCardOpacity(cardOpacity);
+  renderBackgroundGrid(); applyFontScale(fontScale);
   openAnimatedDialog(dom.settingsModal);
 };
 document.getElementById("closeSettingsBtn").onclick = () => closeAnimatedDialog(dom.settingsModal);
 dom.settingsModal.onclick = (e) => { if (e.target === dom.settingsModal) closeAnimatedDialog(dom.settingsModal); };
 document.querySelectorAll("#fontSizeControl .seg-btn").forEach(btn => btn.onclick = () => applyFontScale(btn.dataset.scale));
-document.querySelectorAll("#opacityControl .seg-btn").forEach(btn => btn.onclick = () => applyCardOpacity(btn.dataset.opacity));
 
 function renderBackgroundGrid() {
   const grid = document.getElementById("bgGrid"); grid.innerHTML = ""; const dark = isDarkNow();
@@ -383,7 +413,8 @@ function renderBackgroundGrid() {
 
 // ==== ЗАПУСК ====
 try {
-  applyTheme(); applyFontScale(fontScale); applyCardOpacity(cardOpacity); applyBackground();
+  applyTheme(); applyFontScale(fontScale); applyBackground();
+  updateGreeting();
   refreshGroupSelect(); renderDays(); renderSchedule();
   setInterval(updateLive, 1000);
 } catch (err) {
@@ -391,12 +422,4 @@ try {
   document.getElementById("scheduleList").innerHTML = `<div class="card" style="border-color:red"><div class="subject" style="color:red">Ошибка кода</div><div class="teacher">${err.message}</div></div>`;
 }
 dom.groupSelect.onchange = () => { selectedGroup = dom.groupSelect.value; LS.set("kgst_group", selectedGroup); renderSchedule(); };
-document.addEventListener("visibilitychange", () => { if (!document.hidden) updateLive();
-// Скрываем заставку при успешном запуске
-const splashEl = document.getElementById('splash');
-const appEl = document.getElementById('app');
-if (splashEl) {
-  splashEl.classList.add('hidden');
-  setTimeout(() => { if(splashEl.parentNode) splashEl.parentNode.removeChild(splashEl); }, 600);
-}
-if (appEl) appEl.classList.add('loaded'); });
+document.addEventListener("visibilitychange", () => { if (!document.hidden) updateLive(); });
