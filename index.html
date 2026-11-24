@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#2563eb">
+<meta name="theme-color" content="#0b1120">
 <meta name="description" content="Расписание пар колледжа КГСТ">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -40,6 +40,14 @@
         <option value="light">☀️</option>
         <option value="dark">🌙</option>
       </select>
+      <button id="openDashboardBtn" class="icon-btn" title="Дашборд" aria-label="Дашборд">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7"></rect>
+          <rect x="14" y="3" width="7" height="7"></rect>
+          <rect x="14" y="14" width="7" height="7"></rect>
+          <rect x="3" y="14" width="7" height="7"></rect>
+        </svg>
+      </button>
       <button id="openEditorBtn" class="icon-btn" title="Редактор пар" aria-label="Редактор пар">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 20h9"></path>
@@ -81,6 +89,7 @@
   <div id="scheduleList"></div>
 </div>
 
+<!-- Модалка заметок -->
 <dialog id="noteModal">
   <div class="modal-header">
     <div>
@@ -98,6 +107,76 @@
   </div>
 </dialog>
 
+<!-- НОВОЕ: Шторка Дашборда -->
+<dialog id="dashboardModal" style="max-width: 500px;">
+  <div class="modal-header">
+    <div>
+      <div class="modal-title">📊 Мой Дашборд</div>
+      <div class="modal-sub">Твоя учёба под контролем</div>
+    </div>
+    <button id="closeDashboardBtn" class="btn" style="padding: 6px 10px;">✕</button>
+  </div>
+
+  <div class="dash-tabs">
+    <button class="dash-tab active" data-tab="tab-now">Сейчас</button>
+    <button class="dash-tab" data-tab="tab-hw">Записи</button>
+    <button class="dash-tab" data-tab="tab-grades">Оценки</button>
+    <button class="dash-tab" data-tab="tab-chart">График</button>
+  </div>
+
+  <!-- Вкладка Сейчас -->
+  <div id="tab-now" class="dash-content active">
+    <div class="dash-card">
+      <div class="dash-time" id="dashTime">--:--:--</div>
+      <div class="dash-date" id="dashDate">Дата</div>
+      <hr style="border:0; border-top:1px solid var(--border); margin:10px 0;">
+      <div style="font-size:14px; font-weight:bold; margin-bottom:5px;" id="dashStatus">Загрузка...</div>
+      <div id="dashCurrentPair" style="font-size:13px; color:var(--muted);"></div>
+    </div>
+  </div>
+
+  <!-- Вкладка Записи (ДЗ) -->
+  <div id="tab-hw" class="dash-content">
+    <div id="hwList" style="display:flex; flex-direction:column; gap:8px;">
+      <!-- Сюда будут собираться все заметки -->
+    </div>
+  </div>
+
+  <!-- Вкладка Оценки -->
+  <div id="tab-grades" class="dash-content">
+    <div class="dash-card" style="text-align:center; margin-bottom:12px;">
+      <div style="font-size:12px; color:var(--muted); text-transform:uppercase;">Средний балл</div>
+      <div id="gpaValue" style="font-size:36px; font-weight:900; color:var(--accent);">0.00</div>
+    </div>
+    
+    <div class="add-grade-form">
+      <input type="text" id="gradeSubject" class="text-input" placeholder="Предмет (напр. Математика)">
+      <div style="display:flex; gap:6px;">
+        <input type="number" id="gradeValue" class="text-input" placeholder="Оценка" min="2" max="5" style="width:80px; text-align:center;">
+        <input type="text" id="gradeNote" class="text-input" placeholder="За что? (Контрольная)">
+        <button id="addGradeBtn" class="btn btn-primary" style="padding:10px 14px;">+</button>
+      </div>
+    </div>
+
+    <div id="gradesList" style="margin-top:12px; display:flex; flex-direction:column; gap:6px;">
+      <!-- Список оценок -->
+    </div>
+  </div>
+
+  <!-- Вкладка График -->
+  <div id="tab-chart" class="dash-content">
+    <p style="font-size:12px; color:var(--muted); margin-top:0;">Загрузите картинку с графиком учебного процесса, чтобы всегда иметь её под рукой.</p>
+    <label class="btn btn-primary" style="display:block; text-align:center; cursor:pointer;">
+      📁 Загрузить график
+      <input type="file" id="chartFileInput" accept="image/*" style="display:none;">
+    </label>
+    <div id="chartContainer" style="margin-top:10px; text-align:center;">
+      <!-- Картинка графика -->
+    </div>
+  </div>
+</dialog>
+
+<!-- Модалка настроек -->
 <dialog id="settingsModal">
   <div class="modal-header">
     <div>
@@ -117,7 +196,6 @@
         <input type="file" id="bgFileInput" accept="image/*" style="display:none;">
       </label>
     </div>
-    <div class="setting-hint">Пресеты меняются под тему автоматически.</div>
   </div>
 
   <div class="setting-section">
@@ -163,6 +241,7 @@
   </div>
 </dialog>
 
+<!-- Модалка редактора -->
 <dialog id="editorModal">
   <div class="modal-header">
     <div>
@@ -187,8 +266,8 @@
     </div>
   </div>
 </dialog>
+
 <script>
-  // Страховка: убираем заставку через 1.5 секунды в любом случае
   setTimeout(function() {
     var splash = document.getElementById('splash');
     var app = document.getElementById('app');
@@ -198,4 +277,4 @@
 </script>
 <script src="app.js" defer></script>
 </body>
-</html>
+        </html>
