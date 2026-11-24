@@ -391,7 +391,7 @@ try {
   document.getElementById("scheduleList").innerHTML = `<div class="card" style="border-color:red"><div class="subject" style="color:red">Ошибка кода</div><div class="teacher">${err.message}</div></div>`;
 }
 dom.groupSelect.onchange = () => { selectedGroup = dom.groupSelect.value; LS.set("kgst_group", selectedGroup); renderSchedule(); };
-document.addEventListener("visibilitychange", () => { if (!document.hidden) updateLive(); });
+document.addEventListener("visibilitychange", () => { if (!document.hidden) updateLive();
 // Скрываем заставку при успешном запуске
 const splashEl = document.getElementById('splash');
 const appEl = document.getElementById('app');
@@ -399,4 +399,4 @@ if (splashEl) {
   splashEl.classList.add('hidden');
   setTimeout(() => { if(splashEl.parentNode) splashEl.parentNode.removeChild(splashEl); }, 600);
 }
-if (appEl) appEl.classList.add('loaded');
+if (appEl) appEl.classList.add('loaded'); });
