@@ -8,19 +8,15 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
-<!-- ДОБАВЛЕНО ?v=3 ДЛЯ СБРОСА КЭША -->
-<link rel="stylesheet" href="css/style.css?v=3">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="stylesheet" href="css/style.css?v=4">
 <title>Расписание КГСТ</title>
 </head>
 <body>
 
-<!-- Экран загрузки -->
 <div class="splash" id="splash">
   <div class="splash-inner">
-    <div class="splash-logo-wrap">
-      <div class="splash-glow"></div>
-      <div class="splash-logo">К</div>
-    </div>
+    <div class="splash-logo-wrap"><div class="splash-glow"></div><div class="splash-logo">К</div></div>
     <div class="splash-title">КГСТ</div>
     <div class="splash-loader"><span></span><span></span><span></span></div>
   </div>
@@ -29,13 +25,11 @@
 <div class="bg-layer" id="bgLayer"></div>
 
 <div class="app" id="app">
-  
-  <!-- Блок с приветствием и часами -->
   <header class="hero-section">
-    <div class="greeting" id="greetingText">Добрый день!</div>
-    <div class="sub-greeting">Расписание на сегодня</div>
-    
-    <!-- Шестиугольник с часами -->
+    <div class="hero-text">
+      <div class="greeting" id="greetingText">Добрый день!</div>
+      <div class="sub-greeting">Расписание на сегодня</div>
+    </div>
     <div class="hex-container" id="hexTimerContainer">
       <div class="hex-bg" id="hexBg"></div>
       <div class="hex-content">
@@ -45,41 +39,46 @@
     </div>
   </header>
 
-  <div class="week-banner" id="weekBanner">
+  <div class="group-bar">
+    <select id="groupSelect" aria-label="Выбор группы"></select>
+    <div class="group-hint" id="groupHint">👆 Выбери свою группу</div>
+  </div>
+
+  <div class="week-banner" id="weekBanner" title="Нажми, чтобы переключить неделю вручную">
     <div class="week-info">
       <div class="week-icon" id="weekIcon">🔼</div>
-      <div class="week-text-wrap">
-        <span class="week-sub">Неделя</span>
-        <span class="week-main" id="weekLabel">Верхняя</span>
-      </div>
+      <div class="week-text-wrap"><span class="week-sub">Неделя</span><span class="week-main" id="weekLabel">Верхняя</span></div>
     </div>
     <span class="week-badge-pill" id="weekModePill">Авто</span>
   </div>
 
   <div class="days" id="daysBar"></div>
-  <div id="scheduleList" style="padding-bottom: 100px;"></div>
+
+  <div class="view-toggle" id="viewToggle">
+    <button class="seg-btn" data-view="course">Весь курс</button>
+    <button class="seg-btn" data-view="group">Моя группа</button>
+  </div>
+
+  <div id="scheduleList"></div>
 </div>
 
-<!-- НИЖНЯЯ НАВИГАЦИЯ -->
 <div class="bottom-nav">
   <div class="nav-left">
-    <select id="groupSelect" aria-label="Выбор группы"></select>
+    <button id="openDashboardBtn2" class="icon-btn" title="Дашборд">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+    </button>
   </div>
   <div class="nav-center" id="openDashboardBtn">
     <div class="nav-time" id="dashTimeBtn">---</div>
     <div class="nav-status">Дашборд</div>
   </div>
   <div class="nav-right">
-    <button id="openDashboardBtn2" class="icon-btn" title="Дашборд">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-    </button>
     <button id="openSettingsBtn" class="icon-btn" title="Настройки">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
     </button>
   </div>
 </div>
 
-<!-- Модалки (оставляем без изменений) -->
 <dialog id="noteModal">
   <div class="modal-header"><div><div class="modal-title" id="modalTitle">Заметка</div><div class="modal-sub" id="modalSub"></div></div></div>
   <textarea id="noteInput" placeholder="Текст заметки..."></textarea>
@@ -93,14 +92,14 @@
 </dialog>
 
 <dialog id="dashboardModal">
-  <div class="modal-header"><div><div class="modal-title">📊 Дашборд</div></div><button id="closeDashboardBtn" class="btn" style="padding: 6px 10px;">✕</button></div>
+  <div class="modal-header"><div class="modal-title">📊 Дашборд</div><button id="closeDashboardBtn" class="btn" style="padding:6px 10px;">✕</button></div>
   <div class="dash-tabs">
     <button class="dash-tab active" data-tab="tab-hw">Записи</button>
     <button class="dash-tab" data-tab="tab-grades">Оценки</button>
   </div>
   <div id="tab-hw" class="dash-content active"><div id="hwList"></div></div>
   <div id="tab-grades" class="dash-content">
-    <div class="dash-card" style="text-align:center;"><div style="font-size:12px;color:var(--muted);">Средний балл</div><div id="gpaValue" style="font-size:32px;font-weight:900;color:var(--accent);">0.00</div></div>
+    <div class="dash-card" style="text-align:center;"><div style="font-size:12px;color:var(--muted);">Средний балл</div><div id="gpaValue" style="font-size:32px;font-weight:900;color:var(--accent,#8b5cf6);">0.00</div></div>
     <div class="add-grade-form">
       <input type="text" id="gradeSubject" class="text-input" placeholder="Предмет">
       <div style="display:flex; gap:6px;">
@@ -114,13 +113,52 @@
 </dialog>
 
 <dialog id="settingsModal">
-  <div class="modal-header"><div><div class="modal-title">⚙️ Настройки</div></div><button id="closeSettingsBtn" class="btn">✕</button></div>
-  <div class="setting-section"><span class="setting-label">Фон</span><div class="bg-grid" id="bgGrid"></div></div>
-  <div class="setting-section"><span class="setting-label">Прозрачность</span><div class="segmented-control four" id="opacityControl"><button class="seg-btn" data-opacity="1">Плотные</button><button class="seg-btn" data-opacity="0.7">Средние</button><button class="seg-btn" data-opacity="0.4">Прозрачные</button><button class="seg-btn" data-opacity="0.2">Стекло</button></div></div>
-  <div class="setting-section"><span class="setting-label">Размер текста</span><div class="segmented-control" id="fontSizeControl"><button class="seg-btn" data-scale="0.9">Мелкий</button><button class="seg-btn" data-scale="1">Обычный</button><button class="seg-btn" data-scale="1.15">Крупный</button></div></div>
+  <div class="modal-header"><div class="modal-title">⚙️ Настройки</div><button id="closeSettingsBtn" class="btn">✕</button></div>
+
+  <div class="setting-section">
+    <span class="setting-label">📲 Приложение</span>
+    <button id="installBtn" class="btn btn-primary install-btn">Установить на телефон</button>
+    <div class="install-hint" id="installHint"></div>
+  </div>
+
+  <div class="setting-section">
+    <span class="setting-label">Фон</span>
+    <div class="bg-grid" id="bgGrid"></div>
+    <div class="bg-actions">
+      <label class="btn file-btn">🖼 Своя картинка<input type="file" id="bgFile" accept="image/*" hidden></label>
+      <button id="resetBgBtn" class="btn">↺ Сброс</button>
+    </div>
+    <div class="picker-title">Свой цвет (как в Paint)</div>
+    <div class="color-picker">
+      <div class="sv-pad" id="svPad"><div class="sv-cursor" id="svCursor"></div></div>
+      <div class="hue-slider" id="hueSlider"><div class="hue-thumb" id="hueThumb"></div></div>
+      <div class="color-row">
+        <div class="color-preview" id="colorPreview"></div>
+        <input type="text" id="hexInput" class="text-input hex-input" maxlength="7" spellcheck="false">
+        <button id="applyColorBtn" class="btn btn-primary">ОК</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="setting-section">
+    <span class="setting-label">Темы блоков</span>
+    <div class="theme-grid" id="themeGrid"></div>
+    <div class="setting-note">Цвет текста подберётся автоматически: тёмный блок → белый текст, светлый → чёрный.</div>
+  </div>
+
+  <div class="setting-section"><span class="setting-label">Прозрачность</span>
+    <div class="segmented-control four" id="opacityControl">
+      <button class="seg-btn" data-opacity="1">Плотные</button><button class="seg-btn" data-opacity="0.7">Средние</button><button class="seg-btn" data-opacity="0.4">Прозрачные</button><button class="seg-btn" data-opacity="0.2">Стекло</button>
+    </div>
+  </div>
+
+  <div class="setting-section"><span class="setting-label">Размер текста</span>
+    <div class="segmented-control" id="fontSizeControl">
+      <button class="seg-btn" data-scale="0.9">Мелкий</button><button class="seg-btn" data-scale="1">Обычный</button><button class="seg-btn" data-scale="1.15">Крупный</button>
+    </div>
+  </div>
 </dialog>
 
-<!-- Страховка от зависания заставки -->
 <script>
   setTimeout(function() {
     var splash = document.getElementById('splash');
@@ -129,8 +167,7 @@
     if (app) app.classList.add('loaded');
   }, 1500);
 </script>
-<!-- ДОБАВЛЕНО ?v=3 ДЛЯ СБРОСА КЭША -->
-<script src="js/data.js?v=3"></script>
-<script src="js/app.js?v=3"></script>
+<script src="js/data.js?v=4"></script>
+<script src="js/app.js?v=4"></script>
 </body>
 </html>
