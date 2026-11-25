@@ -1,6 +1,6 @@
-const APP_VERSION = 23;
+const APP_VERSION = 24; window.__APP_V = APP_VERSION;
 const $ = id => document.getElementById(id);
-const on = (id, ev, fn) => { const el = $(id); if (el) el.addEventListener(ev, fn, ev === "touchstart" || ev === "wheel" ? { passive: true } : undefined); };
+const on = (id, ev, fn) => { const el = $(id); if (el) el.addEventListener(ev, fn); };
 const qa = s => document.querySelectorAll(s);
 const buzz = ms => { try { navigator.vibrate && navigator.vibrate(ms); } catch {} };
 
@@ -23,9 +23,13 @@ const WEEK_ANCHOR = new Date(2026,8,7);
 
 const LS = { get(k,d){try{const v=localStorage.getItem(k);return v===null?d:v;}catch{return d;}}, set(k,v){try{localStorage.setItem(k,v);}catch{}}, del(k){try{localStorage.removeItem(k);}catch{}}, json(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch{return d;}}, setJson(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch{}} };
 let customGroups=LS.json("kgst_custom_groups",[]), hiddenGroups=LS.json("kgst_hidden_groups",[]), userSchedule=LS.json("kgst_schedule_custom",{}), gradesData=LS.json("kgst_grades",[]);
-let selectedGroup=LS.get("kgst_group",""), selectedDay=Math.min(Math.max(new Date().getDay(),1),6), weekMode=LS.get("kgst_week_mode","auto"), fontScale=LS.get("kgst_font_scale","1"), cardOpacity=LS.get("kgst_card_opacity","1"), bgPreset=LS.get("kgst_bg_preset","default"), bgCustom=LS.get("kgst_bg_custom",""), bgCustomColor=LS.get("kgst_bg_custom_color","#3b82f6"), cardTheme=LS.get("kgst_card_theme","auto"), viewMode=LS.get("kgst_view","course"), currentNoteKey="", hwQuery="";
+let selectedGroup=LS.get("kgst_group",""), selectedDay=Math.min(Math.max(new Date().getDay(),1),6), weekMode=LS.get("kgst_week_mode","auto"), fontScale=LS.get("kgst_font_scale","1"), cardOpacity=LS.get("kgst_card_opacity","1"), bgPreset=LS.get("kgst_bg_preset","default"), bgCustom=LS.get("kgst_bg_custom",""), bgCustomColor=LS.get("kgst_bg_custom_color","#3b82f6"), cardTheme=LS.get("kgst_card_theme","auto"), viewMode=LS.get("kgst_view","course"), fxMode=LS.get("kgst_fx","auto"), currentNoteKey="", hwQuery="";
 const mqDesktop = window.matchMedia("(min-width: 900px)");
 const mqReduce = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+function weakDevice(){ return (navigator.deviceMemory && navigator.deviceMemory<=4) || (navigator.hardwareConcurrency && navigator.hardwareConcurrency<=4); }
+function applyFx(){ const lite = fxMode==="lite" || (fxMode==="auto" && weakDevice()); document.body.classList.toggle("fx-lite", lite); qa("#fxControl .seg-btn").forEach(b=>b.classList.toggle("active", b.dataset.fx===fxMode)); LS.set("kgst_fx",fxMode); }
+qa("#fxControl .seg-btn").forEach(b=>b.onclick=()=>{ fxMode=b.dataset.fx; applyFx(); });
 
 function getAllGroupNames(){ return [...Object.keys(DEFAULT_SCHEDULE), ...customGroups]; }
 function getVisibleGroupNames(){ const all=getAllGroupNames(), v=all.filter(g=>!hiddenGroups.includes(g)); return v.length?v:[all[0]]; }
@@ -56,8 +60,9 @@ function applyCardTheme(){ const c=resolveThemeColors(), cr=hexToRgb(c.card), br
   rs.setProperty("--theme-accent",c.accent); rs.setProperty("--theme-accent-text",at.text); rs.setProperty("--theme-accent-soft",c.accent+"2e");
   LS.set("kgst_card_theme",cardTheme);
   qa("#themeGrid .theme-option").forEach(el=>el.classList.toggle("active",el.dataset.theme===cardTheme)); }
-function applyFontScale(s){ fontScale=String(Math.min(1.4,Math.max(.8,parseFloat(s)||1))); document.documentElement.style.setProperty("--scale",fontScale); LS.set("kgst_font_scale",fontScale);
-  const r=$("fontRange"), v=$("fontValue"); if(r)r.value=fontScale; if(v)v.textContent=Math.round(fontScale*100)+"%"; }
+function applyFontScale(s){ fontScale=String(Math.min(1.4,Math.max(.8,parseFloat(s)||1))); const px=16*parseFloat(fontScale);
+  document.documentElement.style.fontSize=px+"px"; document.documentElement.style.setProperty("--scale",fontScale); LS.set("kgst_font_scale",fontScale);
+  const r=$("fontRange"), v=$("fontValue"); if(r)r.value=fontScale; if(v)v.textContent=Math.round(parseFloat(fontScale)*100)+"%"; }
 function applyOpacity(v){ cardOpacity=String(v); document.documentElement.style.setProperty("--card-alpha",cardOpacity); LS.set("kgst_card_opacity",cardOpacity); qa("#opacityControl .seg-btn").forEach(b=>b.classList.toggle("active",b.dataset.opacity===cardOpacity)); }
 function updateGreeting(){ const h=new Date().getHours(), el=$("greetingText"); if(el)el.textContent=h>=5&&h<12?"Доброе утро!":h>=12&&h<18?"Добрый день!":h>=18&&h<23?"Добрый вечер!":"Доброй ночи!"; }
 
@@ -198,7 +203,7 @@ function updateInstallUI(){ const b=$("installBtn"),h=$("installHint"); if(!b)re
 on("installBtn","click",async()=>{ if(deferredPrompt){ deferredPrompt.prompt(); await deferredPrompt.userChoice; deferredPrompt=null; updateInstallUI(); } else if(isIOS())alert('В Safari: «Поделиться» → «На экран “Домой»».'); else alert('Меню браузера (⋮) → «Установить приложение».'); });
 on("checkUpdateBtn","click",async()=>{ const reg=window.__swReg; if(reg){ await reg.update(); showToast(reg.waiting?"Обновление найдено, перезагружаю…":"Установлена последняя версия"); if(reg.waiting)setTimeout(()=>location.reload(),800); } else showToast("Service worker недоступен"); });
 
-on("openSettingsBtn","click",()=>{ renderBackgroundGrid(); renderThemeGrid(); renderPicker(); applyFontScale(fontScale); applyOpacity(cardOpacity); updateInstallUI(); const vp=$("versionPill"); if(vp)vp.textContent="v"+APP_VERSION; openAnimatedDialog($("settingsModal")); });
+on("openSettingsBtn","click",()=>{ renderBackgroundGrid(); renderThemeGrid(); renderPicker(); applyFontScale(fontScale); applyOpacity(cardOpacity); applyFx(); updateInstallUI(); const vp=$("versionPill"); if(vp)vp.textContent="v"+APP_VERSION; openAnimatedDialog($("settingsModal")); });
 on("closeSettingsBtn","click",()=>closeAnimatedDialog($("settingsModal")));
 const sm=$("settingsModal"); if(sm)sm.onclick=e=>{ if(e.target===sm)closeAnimatedDialog(sm); };
 qa("#opacityControl .seg-btn").forEach(b=>b.onclick=()=>applyOpacity(b.dataset.opacity));
@@ -211,7 +216,7 @@ function updateNet(){ const b=$("netBadge"); if(b)b.hidden=navigator.onLine; }
 window.addEventListener("online",updateNet); window.addEventListener("offline",updateNet);
 
 function hideSplash(){ const s=$("splash"); if(s){ s.classList.add("hidden"); setTimeout(()=>s.remove(),700); } const a=$("app"); if(a)a.classList.add("loaded"); }
-try{ applyBackground(); applyFontScale(fontScale); applyOpacity(cardOpacity); updateGreeting(); refreshGroupSelect(); renderDays(); syncViewToggle(); renderSchedule(); updateNet(); setInterval(updateLive,1000); hideSplash(); }
+try{ applyBackground(); applyFontScale(fontScale); applyOpacity(cardOpacity); applyFx(); updateGreeting(); refreshGroupSelect(); renderDays(); syncViewToggle(); renderSchedule(); updateNet(); setInterval(updateLive,1000); hideSplash(); }
 catch(err){ console.error(err); hideSplash(); const l=$("scheduleList"); if(l)l.innerHTML=`<div class="card" style="border-color:red"><div class="subject" style="color:red">Ошибка кода</div><div class="teacher">${escapeHtml(err.message)}</div></div>`; }
 document.addEventListener("visibilitychange",()=>{ if(!document.hidden)updateLive(); });
 const mqDark=window.matchMedia("(prefers-color-scheme: dark)"); if(mqDark.addEventListener)mqDark.addEventListener("change",applyBackground);
