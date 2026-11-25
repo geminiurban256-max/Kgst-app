@@ -11,23 +11,14 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="stylesheet" href="css/style.css">
 <title>Расписание КГСТ</title>
-<style>
-  .editor-row{display:grid;grid-template-columns:64px 1fr 36px;gap:6px;margin-bottom:8px;align-items:center;}
-  .editor-row .text-input{padding:10px;}
-  .editor-row select{padding:10px;border-radius:12px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-weight:800;}
-  .editor-fields{display:flex;flex-direction:column;gap:6px;}
-  .editor-del{background:#ef4444;color:#fff;border:none;border-radius:10px;height:36px;cursor:pointer;font-weight:900;}
-  .data-actions{display:flex;gap:8px;flex-wrap:wrap;}
-  .data-actions .btn{flex:1;min-width:140px;}
-  #updateToast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%) translateY(20px);background:linear-gradient(135deg,var(--status-color-1),var(--status-color-2));color:#fff;padding:12px 20px;border-radius:16px;font-weight:800;font-size:14px;box-shadow:0 10px 30px rgba(0,0,0,.4);opacity:0;visibility:hidden;transition:.3s;z-index:2000;}
-  #updateToast.show{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0);}
-</style>
 </head>
 <body>
 
 <div class="splash" id="splash"><div class="splash-inner"><div class="splash-logo-wrap"><div class="splash-glow"></div><div class="splash-logo">К</div></div><div class="splash-title">КГСТ</div><div class="splash-loader"><span></span><span></span><span></span></div></div></div>
 <div class="bg-layer" id="bgLayer"></div>
+<div class="net-badge" id="netBadge" hidden>📡 Офлайн</div>
 <div id="updateToast">🔄 Обновление установлено…</div>
+<div class="toast" id="toast" role="status"><span id="toastMsg"></span><button class="toast-undo" id="toastUndo" hidden>Вернуть</button></div>
 
 <div class="app" id="app">
   <header class="hero-section">
@@ -40,7 +31,7 @@
     <div class="group-hint" id="groupHint">👆 Выбери свою группу</div>
   </div>
 
-  <div class="week-banner" id="weekBanner" title="Нажми, чтобы переключить неделю вручную">
+  <div class="week-banner" id="weekBanner" role="button" tabindex="0" title="Нажми, чтобы переключить неделю вручную">
     <div class="week-info"><div class="week-icon" id="weekIcon">🔼</div><div class="week-text-wrap"><span class="week-sub">Неделя</span><span class="week-main" id="weekLabel">Верхняя</span></div></div>
     <span class="week-badge-pill" id="weekModePill">Авто</span>
   </div>
@@ -51,39 +42,43 @@
 </div>
 
 <div class="bottom-nav">
-  <div class="nav-left"><button id="openDashboardBtn2" class="icon-btn" title="Дашборд"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg></button></div>
-  <div class="nav-center" id="openDashboardBtn"><div class="nav-time" id="dashTimeBtn">---</div><div class="nav-status">Дашборд</div></div>
-  <div class="nav-right"><button id="openSettingsBtn" class="icon-btn" title="Настройки"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></button></div>
+  <div class="nav-left"><button id="openDashboardBtn2" class="icon-btn" title="Дашборд" aria-label="Дашборд"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg></button></div>
+  <div class="nav-center" id="openDashboardBtn" role="button" tabindex="0"><div class="nav-time" id="dashTimeBtn">---</div><div class="nav-status">Дашборд</div></div>
+  <div class="nav-right"><button id="openSettingsBtn" class="icon-btn" title="Настройки" aria-label="Настройки"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></button></div>
 </div>
 
-<dialog id="noteModal">
+<dialog id="noteModal" aria-labelledby="modalTitle">
   <div class="modal-header"><div><div class="modal-title" id="modalTitle">Заметка</div><div class="modal-sub" id="modalSub"></div></div></div>
   <textarea id="noteInput" placeholder="Текст заметки..."></textarea>
   <div class="modal-actions"><button id="deleteNote" class="btn btn-danger">Удалить</button><div style="display:flex;gap:8px;margin-left:auto;"><button id="closeModal" class="btn">Отмена</button><button id="saveNote" class="btn btn-primary">Сохранить</button></div></div>
 </dialog>
 
-<dialog id="dashboardModal">
+<dialog id="dashboardModal" aria-label="Дашборд">
   <div class="modal-header"><div class="modal-title">📊 Дашборд</div><button id="closeDashboardBtn" class="btn" style="padding:6px 10px;">✕</button></div>
   <div class="dash-tabs"><button class="dash-tab active" data-tab="tab-hw">Записи</button><button class="dash-tab" data-tab="tab-grades">Оценки</button></div>
-  <div id="tab-hw" class="dash-content active"><div id="hwList"></div></div>
+  <div id="tab-hw" class="dash-content active"><input type="search" id="hwSearch" class="text-input" placeholder="🔍 Поиск по записям…" style="margin-bottom:12px;"><div id="hwList"></div></div>
   <div id="tab-grades" class="dash-content">
-    <div class="dash-card" style="text-align:center;"><div style="font-size:12px;color:var(--muted);">Средний балл</div><div id="gpaValue" style="font-size:32px;font-weight:900;color:var(--accent);">0.00</div></div>
+    <div class="dash-card" style="text-align:center;"><div style="font-size:.75rem;color:var(--muted);">Средний балл</div><div id="gpaValue" style="font-size:2rem;font-weight:900;color:var(--accent);">0.00</div></div>
     <div class="add-grade-form"><input type="text" id="gradeSubject" class="text-input" placeholder="Предмет"><div style="display:flex;gap:6px;"><input type="number" id="gradeValue" class="text-input" placeholder="Оценка" min="2" max="5" style="width:80px;"><input type="text" id="gradeNote" class="text-input" placeholder="За что?"><button id="addGradeBtn" class="btn btn-primary">+</button></div></div>
     <div id="gradesList"></div>
   </div>
 </dialog>
 
-<dialog id="editorModal">
+<dialog id="editorModal" aria-label="Редактор расписания">
   <div class="modal-header"><div><div class="modal-title">✏️ Редактор</div><div class="modal-sub" id="editorSub"></div></div><button id="closeEditorBtn" class="btn" style="padding:6px 10px;">✕</button></div>
   <div id="editorRows"></div>
   <div class="data-actions" style="margin-top:10px;"><button id="addPairBtn" class="btn">＋ Пара</button><button id="resetDayBtn" class="btn">↺ Стандарт</button><button id="saveEditorBtn" class="btn btn-primary">Сохранить</button></div>
   <div class="setting-note">Изменения хранятся на твоём устройстве и не пропадают при обновлениях.</div>
 </dialog>
 
-<dialog id="settingsModal">
+<dialog id="settingsModal" aria-label="Настройки">
   <div class="modal-header"><div class="modal-title">⚙️ Настройки</div><button id="closeSettingsBtn" class="btn">✕</button></div>
 
-  <div class="setting-section"><span class="setting-label">📲 Приложение</span><button id="installBtn" class="btn btn-primary install-btn">Установить на телефон</button><div class="install-hint" id="installHint"></div></div>
+  <div class="setting-section"><span class="setting-label">📲 Приложение</span>
+    <button id="installBtn" class="btn btn-primary install-btn">Установить на телефон</button>
+    <div class="install-hint" id="installHint"></div>
+    <div class="data-actions" style="margin-top:10px;"><button id="checkUpdateBtn" class="btn">🔄 Проверить обновления</button><span class="version-pill" id="versionPill">v23</span></div>
+  </div>
 
   <div class="setting-section"><span class="setting-label">💾 Данные</span>
     <div class="data-actions"><button id="exportBtn" class="btn">⬇️ Скачать копию</button><label class="btn file-btn">⬆️ Загрузить копию<input type="file" id="importFile" accept="application/json" hidden></label></div>
@@ -96,19 +91,29 @@
     <div class="bg-grid" id="bgGrid"></div>
     <div class="bg-actions"><label class="btn file-btn">🖼 Своя картинка<input type="file" id="bgFile" accept="image/*" hidden></label><button id="resetBgBtn" class="btn">↺ Сброс</button></div>
     <div class="picker-title">Свой цвет (как в Paint)</div>
-    <div class="color-picker"><div class="sv-pad" id="svPad"><div class="sv-cursor" id="svCursor"></div></div><div class="hue-slider" id="hueSlider"><div class="hue-thumb" id="hueThumb"></div></div><div class="color-row"><div class="color-preview" id="colorPreview"></div><input type="text" id="hexInput" class="text-input hex-input" maxlength="7" spellcheck="false"><button id="applyColorBtn" class="btn btn-primary">ОК</button></div></div>
+    <div class="color-picker"><div class="sv-pad" id="svPad"><div class="sv-cursor" id="svCursor"></div></div><div class="hue-slider" id="hueSlider"><div class="hue-thumb" id="hueThumb"></div></div><div class="color-row"><div class="color-preview" id="colorPreview"></div><input type="text" id="hexInput" class="text-input hex-input" maxlength="7" spellcheck="false" aria-label="HEX цвет"><button id="applyColorBtn" class="btn btn-primary">ОК</button></div></div>
   </div>
 
-  <div class="setting-section"><span class="setting-label">Темы блоков</span><div class="theme-grid" id="themeGrid"></div><div class="setting-note">Цвет текста подберётся автоматически.</div></div>
+  <div class="setting-section"><span class="setting-label">Темы блоков</span><div class="theme-grid" id="themeGrid"></div><div class="setting-note">Цвет текста и подсветка текущей пары подстраиваются под тему автоматически.</div></div>
+
   <div class="setting-section"><span class="setting-label">Прозрачность</span><div class="segmented-control four" id="opacityControl"><button class="seg-btn" data-opacity="1">Плотные</button><button class="seg-btn" data-opacity="0.7">Средние</button><button class="seg-btn" data-opacity="0.4">Прозрачные</button><button class="seg-btn" data-opacity="0.2">Стекло</button></div></div>
-  <div class="setting-section"><span class="setting-label">Размер текста</span><div class="segmented-control" id="fontSizeControl"><button class="seg-btn" data-scale="0.9">Мелкий</button><button class="seg-btn" data-scale="1">Обычный</button><button class="seg-btn" data-scale="1.15">Крупный</button></div></div>
+
+  <div class="setting-section"><span class="setting-label">Размер текста</span>
+    <div class="font-slider-row">
+      <button id="fontMinus" class="step-btn" aria-label="Уменьшить шрифт">A−</button>
+      <input type="range" id="fontRange" min="0.8" max="1.4" step="0.05" value="1" aria-label="Размер текста">
+      <button id="fontPlus" class="step-btn" aria-label="Увеличить шрифт">A+</button>
+      <span class="font-value" id="fontValue">100%</span>
+    </div>
+    <button id="fontReset" class="link-btn">Сбросить размер</button>
+  </div>
 </dialog>
 
 <script>
   setTimeout(function(){var s=document.getElementById('splash'),a=document.getElementById('app');if(s)s.style.display='none';if(a)a.classList.add('loaded');},1500);
   if('serviceWorker' in navigator){
     var hadController=!!navigator.serviceWorker.controller;
-    window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').then(function(reg){reg.update();setInterval(function(){reg.update();},3600000);}).catch(function(){});});
+    window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').then(function(reg){window.__swReg=reg;reg.update();setInterval(function(){reg.update();},3600000);}).catch(function(){});});
     navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadController)return;var t=document.getElementById('updateToast');if(t)t.classList.add('show');setTimeout(function(){location.reload();},900);});
   }
 </script>
