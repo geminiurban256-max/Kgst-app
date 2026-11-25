@@ -9,7 +9,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<link rel="stylesheet" href="css/style.css?v=27">
+<link rel="stylesheet" href="css/style.css?v=28">
 <title>Расписание КГСТ</title>
 <style>
   html{font-size:calc(16px * var(--scale,1));}
@@ -112,7 +112,7 @@
   <div class="setting-section"><span class="setting-label">📲 Приложение</span>
     <button id="installBtn" class="btn btn-primary install-btn">Установить на телефон</button>
     <div class="install-hint" id="installHint"></div>
-    <div class="data-actions" style="margin-top:10px;"><button id="checkUpdateBtn" class="btn">🔄 Проверить обновления</button><span class="version-pill" id="versionPill">v27</span></div>
+    <div class="data-actions" style="margin-top:10px;"><button id="checkUpdateBtn" class="btn">🔄 Проверить обновления</button><span class="version-pill" id="versionPill">v28</span></div>
   </div>
 
   <div class="setting-section"><span class="setting-label">⚡ Качество эффектов</span>
@@ -150,7 +150,7 @@
 </dialog>
 
 <script>
-  window.__V=27;
+  window.__V=28;
   setTimeout(function(){var s=document.getElementById('splash'),a=document.getElementById('app');if(s)s.style.display='none';if(a)a.classList.add('loaded');},1500);
   if('serviceWorker' in navigator){
     var hadController=!!navigator.serviceWorker.controller;
@@ -158,8 +158,8 @@
     navigator.serviceWorker.addEventListener('controllerchange',function(){if(!hadController)return;var t=document.getElementById('updateToast');if(t)t.classList.add('show');setTimeout(function(){location.reload();},900);});
   }
 </script>
-<script src="js/data.js?v=27"></script>
-<script src="js/app.js?v=27"></script>
-<script src="js/hotfix.js?v=27"></script>
+<script src="js/data.js?v=28"></script>
+<script src="js/app.js?v=28"></script>
+<script src="js/hotfix2.js?v=28"></script>
 </body>
 </html>
