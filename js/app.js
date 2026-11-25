@@ -1,8 +1,9 @@
-const APP_VERSION = 25; window.__APP_V = APP_VERSION;
+const APP_VERSION = 26; window.__APP_V = APP_VERSION;
 const $ = id => document.getElementById(id);
 const on = (id, ev, fn) => { const el = $(id); if (el) el.addEventListener(ev, fn); };
 const qa = s => document.querySelectorAll(s);
 const buzz = ms => { try { navigator.vibrate && navigator.vibrate(ms); } catch {} };
+const isSplit = x => !!x && typeof x === "object" && Array.isArray(x.split);
 
 const BG_PRESETS = { default:{name:"Тёмный",light:"#f8fafc",dark:"#0f172a"}, aurora:{name:"Аврора",light:"linear-gradient(135deg,#a8edea,#fed6e3)",dark:"linear-gradient(135deg,#1a2980,#26d0ce)"}, ocean:{name:"Океан",light:"linear-gradient(135deg,#89f7fe,#66a6ff)",dark:"linear-gradient(135deg,#0f2027,#2c5364)"}, sunset:{name:"Закат",light:"linear-gradient(135deg,#ffecd2,#fcb69f)",dark:"linear-gradient(135deg,#3a1c71,#d76d77)"}, forest:{name:"Лес",light:"linear-gradient(135deg,#d4fc79,#96e6a1)",dark:"linear-gradient(135deg,#134e5e,#71b280)"}, midnight:{name:"Ночь",light:"linear-gradient(135deg,#667eea,#764ba2)",dark:"linear-gradient(135deg,#0f0c29,#302b63,#24243e)"} };
 const CARD_THEMES = {
@@ -23,6 +24,7 @@ const WEEK_ANCHOR = new Date(2026,8,7);
 
 const LS = { get(k,d){try{const v=localStorage.getItem(k);return v===null?d:v;}catch{return d;}}, set(k,v){try{localStorage.setItem(k,v);}catch{}}, del(k){try{localStorage.removeItem(k);}catch{}}, json(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch{return d;}}, setJson(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch{}} };
 let customGroups=LS.json("kgst_custom_groups",[]), hiddenGroups=LS.json("kgst_hidden_groups",[]), userSchedule=LS.json("kgst_schedule_custom",{}), gradesData=LS.json("kgst_grades",[]);
+(function sanitize(){ let bad=false; for(const g of Object.keys(userSchedule)){ const days=userSchedule[g]; if(!days||typeof days!=="object"){ delete userSchedule[g]; bad=true; continue; } for(const d of Object.keys(days)){ const arr=days[d]; if(!Array.isArray(arr)){ delete days[d]; bad=true; continue; } days[d]=arr.filter(it=>Array.isArray(it)&&typeof it[0]==="number").map(it=>{ let s=it[1]; if(s&&typeof s==="object"&&!isSplit(s)) s=String(s.s||""); return [it[0], s, it[2]||"", it[3]||"", it[4]]; }); } } if(bad) LS.setJson("kgst_schedule_custom",userSchedule); })();
 let selectedGroup=LS.get("kgst_group",""), selectedDay=Math.min(Math.max(new Date().getDay(),1),6), weekMode=LS.get("kgst_week_mode","auto"), fontScale=LS.get("kgst_font_scale","1"), cardOpacity=LS.get("kgst_card_opacity","1"), bgPreset=LS.get("kgst_bg_preset","default"), bgCustom=LS.get("kgst_bg_custom",""), bgCustomColor=LS.get("kgst_bg_custom_color","#3b82f6"), cardTheme=LS.get("kgst_card_theme","auto"), viewMode=LS.get("kgst_view","course"), fxMode=LS.get("kgst_fx","auto"), currentNoteKey="", hwQuery="";
 const mqDesktop = window.matchMedia("(min-width: 900px)");
 const mqReduce = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -48,7 +50,7 @@ function hsvToRgb(h,s,v){ const f=n=>{const k=(n+h/60)%6;return v-v*s*Math.max(0
 function rgbToHsv(r,g,b){ r/=255;g/=255;b/=255; const mx=Math.max(r,g,b),mn=Math.min(r,g,b),d=mx-mn; let h=0; if(d){ if(mx===r)h=((g-b)/d)%6; else if(mx===g)h=(b-r)/d+2; else h=(r-g)/d+4; h*=60; if(h<0)h+=360; } return [h,mx?d/mx:0,mx]; }
 function luminance(rgb){ const a=rgb.map(v=>{v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4);}); return .2126*a[0]+.7152*a[1]+.0722*a[2]; }
 function contrastFor(rgb){ const l=luminance(rgb)>.45; return {text:l?"#0f172a":"#f8fafc",muted:l?"rgba(15,23,42,.62)":"rgba(248,250,252,.62)"}; }
-function subjText(x){ return (x&&x.split)?x.split.map(g=>g.s).join(" / "):(x||""); }
+function subjText(x){ return isSplit(x)?x.split.map(g=>g.s).join(" / "):(typeof x==="string"?x:""); }
 
 function applyBackground(){ const rs=document.documentElement.style; let base="#0f172a", img="none"; document.body.classList.toggle("bg-raw", bgPreset==="color"||bgPreset==="custom");
   if(bgPreset==="color"){ base=bgCustomColor||"#3b82f6"; setAppTheme(luminance(hexToRgb(base))>.45?"light":"dark"); }
@@ -87,12 +89,12 @@ on("weekBanner","click",cycleWeek);
 on("weekBanner","keydown",e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); cycleWeek(); } });
 
 function fillSubject(el, subject, teacher, room){
-  if(subject && subject.split){
+  if(isSplit(subject)){
     el.innerHTML = subject.split.map((g,i)=>`<div class="sub-row"><span class="sub-tag">${i+1} подгр.</span><div class="sub-body"><div class="sub-name"></div><div class="sub-meta"></div></div></div>`).join("");
     el.querySelectorAll(".sub-row").forEach((row,i)=>{ const g=subject.split[i]; row.querySelector(".sub-name").textContent=g.s||"(без названия)"; row.querySelector(".sub-meta").textContent=[g.t,g.r?("каб. "+g.r):""].filter(Boolean).join(" · "); });
   } else {
     el.innerHTML = `<div class="subject"></div><div class="teacher" style="${teacher?"":"height:6px;margin:0;"}"></div>`;
-    el.querySelector(".subject").textContent=subject||"(без названия)";
+    el.querySelector(".subject").textContent=(typeof subject==="string"&&subject)||"(без названия)";
     if(teacher)el.querySelector(".teacher").textContent=teacher;
   }
 }
@@ -100,14 +102,15 @@ function fillSubject(el, subject, teacher, room){
 let cachedCards=[];
 function renderSchedule(){ updateWeekBanner(); const list=$("scheduleList"); if(!list)return; list.innerHTML=""; cachedCards=[];
   if(!selectedGroup){ list.innerHTML=`<div class="card empty-state" style="cursor:default;"><span class="arrow">⬆️</span><div class="subject">Выбери свою группу</div><div class="teacher" style="margin:8px 0 0;">Селектор вверху по центру — там все группы по курсам.</div></div>`; return; }
-  if(mqDesktop.matches&&viewMode==="course")renderCourseGrid(); else renderGroupCards();
+  try{ if(mqDesktop.matches&&viewMode==="course")renderCourseGrid(); else renderGroupCards(); }
+  catch(err){ console.error(err); list.innerHTML=`<div class="card" style="border-color:red"><div class="subject" style="color:red">Ошибка дня</div><div class="teacher">${escapeHtml(err.message)}</div></div>`; }
   updateLive();
   requestAnimationFrame(()=>{ const cur=cachedCards.find(c=>c.isCurrent); if(cur&&selectedDay===new Date().getDay())cur.el.scrollIntoView({block:"center",behavior:mqReduce.matches?"auto":"smooth"}); }); }
 function renderGroupCards(){ const list=$("scheduleList"), bells=selectedDay===1?BELLS.monday:BELLS.regular, dayData=getSchedule(selectedGroup)[selectedDay]||[];
   if(!dayData.length){ list.innerHTML=`<div class="card" style="text-align:center;cursor:default;"><div class="subject" style="margin:0;">В этот день пар нет</div></div>`; return; }
   dayData.forEach((item,index)=>{ const[pairNum,subjRaw,teacher,room,timeOv]=item, bell=bells.find(b=>b.num===pairNum), timeText=timeOv||(bell?`${bell.start} – ${bell.end}`:"—"), noteKey=`note_${selectedGroup}_${selectedDay}_${pairNum}`, savedNote=LS.get(noteKey,"");
     const card=document.createElement("div"); card.className="card"; card.style.setProperty("--delay",(index*.05)+"s");
-    card.innerHTML=`<div class="card-top"><span>${pairNum===0?"Классный час":pairNum+" пара"} • ${timeText}<span class="live-pill" style="display:none;"><span class="live-dot"></span>Сейчас</span></span>${room?`<span class="room-badge">Каб. ${escapeHtml(room)}</span>`:""}</div><div class="subj-wrap"></div><div class="note-box ${savedNote?"has-note":""}"><span>${savedNote?"📝":"️"}</span><span class="note-text"></span></div>`;
+    card.innerHTML=`<div class="card-top"><span>${pairNum===0?"Классный час":pairNum+" пара"} • ${timeText}<span class="live-pill" style="display:none;"><span class="live-dot"></span>Сейчас</span></span>${room?`<span class="room-badge">Каб. ${escapeHtml(room)}</span>`:""}</div><div class="subj-wrap"></div><div class="note-box ${savedNote?"has-note":""}"><span>${savedNote?"📝":"✏️"}</span><span class="note-text"></span></div>`;
     fillSubject(card.querySelector(".subj-wrap"), subjRaw, teacher, room);
     card.querySelector(".note-text").textContent=savedNote||"Добавить запись";
     card.onclick=()=>openNoteModal(noteKey,subjText(subjRaw),pairNum===0?"Классный час":`${pairNum} пара`,savedNote);
@@ -122,10 +125,10 @@ function renderCourseGrid(){ const list=$("scheduleList"), course=courseOf(selec
   rowDefs.forEach(rd=>{ const t=document.createElement("div"); t.className="cg-time"; t.innerHTML=`<span>${rd.name}</span><span>${rd.time}</span>`; wrap.appendChild(t);
     groups.forEach(g=>{ const item=(getSchedule(g)[selectedDay]||[]).find(it=>it[0]===rd.num), cell=document.createElement("div");
       if(!item){ cell.className="cg-cell empty"; cell.textContent="—"; }
-      else { const[,subjRaw,teacher,room,timeOv]=item, noteKey=`note_${g}_${selectedDay}_${rd.num}`, note=LS.get(noteKey,"");
+      else { const[,subjRaw,teacher,room]=item, noteKey=`note_${g}_${selectedDay}_${rd.num}`, note=LS.get(noteKey,"");
         cell.className="cg-cell";
-        if(subjRaw&&subjRaw.split){ cell.innerHTML=`<div class="cg-split"></div>${note?'<div class="n">📝</div>':""}`; const sp=cell.querySelector(".cg-split"); subjRaw.split.forEach((gg,i)=>{ const d=document.createElement("div"); d.className="cg-sub"; d.innerHTML=`<span class="sub-tag">${i+1}</span><span class="s"></span>`; d.querySelector(".s").textContent=gg.s; sp.appendChild(d); }); }
-        else { cell.innerHTML=`<div class="s"></div>${teacher?'<div class="t"></div>':""}${room?'<span class="r"></span>':""}${note?'<div class="n">📝 есть запись</div>':""}`; cell.querySelector(".s").textContent=subjRaw||"(без названия)"; if(teacher)cell.querySelector(".t").textContent=teacher; if(room)cell.querySelector(".r").textContent="Каб. "+room; }
+        if(isSplit(subjRaw)){ cell.innerHTML=`<div class="cg-split"></div>${note?'<div class="n">📝</div>':""}`; const sp=cell.querySelector(".cg-split"); subjRaw.split.forEach((gg,i)=>{ const d=document.createElement("div"); d.className="cg-sub"; d.innerHTML=`<span class="sub-tag">${i+1}</span><span class="s"></span>`; d.querySelector(".s").textContent=gg.s; sp.appendChild(d); }); }
+        else { cell.innerHTML=`<div class="s"></div>${teacher?'<div class="t"></div>':""}${room?'<span class="r"></span>':""}${note?'<div class="n">📝 есть запись</div>':""}`; cell.querySelector(".s").textContent=(typeof subjRaw==="string"&&subjRaw)||"(без названия)"; if(teacher)cell.querySelector(".t").textContent=teacher; if(room)cell.querySelector(".r").textContent="Каб. "+room; }
         cell.onclick=()=>openNoteModal(noteKey,subjText(subjRaw),rd.name,note); cachedCards.push({el:cell,pill:null,pair:rd.num,isCurrent:false}); }
       wrap.appendChild(cell); }); });
   list.appendChild(wrap); }
@@ -232,7 +235,7 @@ function updateNet(){ const b=$("netBadge"); if(b)b.hidden=navigator.onLine; }
 window.addEventListener("online",updateNet); window.addEventListener("offline",updateNet);
 
 function hideSplash(){ const s=$("splash"); if(s){ s.classList.add("hidden"); setTimeout(()=>s.remove(),700); } const a=$("app"); if(a)a.classList.add("loaded"); }
-try{ applyBackground(); applyFontScale(fontScale); applyOpacity(cardOpacity); applyFx(); updateGreeting(); refreshGroupSelect(); renderDays(); syncViewToggle(); renderSchedule(); updateNet(); setInterval(updateLive,1000); hideSplash(); }
+try{ applyBackground(); applyFontScale(fontScale); applyOpacity(cardOpacity); applyFx(); updateGreeting(); refreshGroupSelect(); renderDays(); syncViewToggle(); setInterval(updateLive,1000); renderSchedule(); updateNet(); hideSplash(); }
 catch(err){ console.error(err); hideSplash(); const l=$("scheduleList"); if(l)l.innerHTML=`<div class="card" style="border-color:red"><div class="subject" style="color:red">Ошибка кода</div><div class="teacher">${escapeHtml(err.message)}</div></div>`; }
 document.addEventListener("visibilitychange",()=>{ if(!document.hidden)updateLive(); });
 const mqDark=window.matchMedia("(prefers-color-scheme: dark)"); if(mqDark.addEventListener)mqDark.addEventListener("change",applyBackground);
