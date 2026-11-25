@@ -12,7 +12,6 @@
 <link rel="stylesheet" href="css/style.css">
 <title>Расписание КГСТ</title>
 <style>
-  /* Масштаб текста: работает даже если старый CSS ещё в кэше */
   html{font-size:calc(16px * var(--scale,1));}
   body{font-size:.9375rem;}
   .greeting{font-size:1.5rem;}.sub-greeting{font-size:.875rem;}
@@ -33,7 +32,6 @@
   .install-hint{font-size:.75rem;}.font-value{font-size:.8125rem;}.step-btn{font-size:.875rem;}
   .toast{font-size:.875rem;}.splash-title{font-size:1.75rem;}.splash-logo{font-size:3.125rem;}
   .empty-state .arrow{font-size:2.125rem;}.version-pill{font-size:.75rem;}.link-btn{font-size:.75rem;}
-  /* Производительность: убираем тяжёлые эффекты при прокрутке */
   .bg-layer{transition:none;}
   .card,.break-card,.cg-cell,.day-btn,.seg-btn,.btn{transition:transform .15s ease,border-color .2s ease,box-shadow .2s ease,background-color .2s ease;}
   .card,.cg-cell{content-visibility:auto;contain-intrinsic-size:auto 150px;}
@@ -114,7 +112,7 @@
   <div class="setting-section"><span class="setting-label">📲 Приложение</span>
     <button id="installBtn" class="btn btn-primary install-btn">Установить на телефон</button>
     <div class="install-hint" id="installHint"></div>
-    <div class="data-actions" style="margin-top:10px;"><button id="checkUpdateBtn" class="btn">🔄 Проверить обновления</button><span class="version-pill" id="versionPill">v24</span></div>
+    <div class="data-actions" style="margin-top:10px;"><button id="checkUpdateBtn" class="btn">🔄 Проверить обновления</button><span class="version-pill" id="versionPill">v26</span></div>
   </div>
 
   <div class="setting-section"><span class="setting-label">⚡ Качество эффектов</span>
@@ -152,7 +150,7 @@
 </dialog>
 
 <script>
-  window.__V=24;
+  window.__V=26;
   setTimeout(function(){var s=document.getElementById('splash'),a=document.getElementById('app');if(s)s.style.display='none';if(a)a.classList.add('loaded');},1500);
   window.addEventListener('load',function(){setTimeout(function(){if(window.__APP_V!==window.__V){if(!sessionStorage.getItem('kgst_rl')){sessionStorage.setItem('kgst_rl','1');location.reload();}}else{sessionStorage.removeItem('kgst_rl');}},300);});
   if('serviceWorker' in navigator){
